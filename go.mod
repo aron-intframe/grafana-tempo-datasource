@@ -6,14 +6,14 @@ require (
 	github.com/gogo/protobuf v1.3.2
 	github.com/golang/protobuf v1.5.4
 	github.com/grafana/grafana-plugin-sdk-go v0.296.5
-	github.com/grafana/tempo v1.5.1-0.20260910130453-bcfe9f230c1d
+	github.com/grafana/tempo v1.5.1-0.20260317172644-4aeafc237b8d
 	github.com/magefile/mage v1.17.2
 	github.com/prometheus/client_golang v1.24.1
 	github.com/stretchr/testify v1.12.1
 	go.opentelemetry.io/collector/pdata v1.67.0
 	go.opentelemetry.io/otel v1.46.0
 	go.opentelemetry.io/otel/trace v1.46.0
-	google.golang.org/grpc v1.84.0
+	google.golang.org/grpc v1.85.0-dev.0.20260825072537-93e31b48545e
 )
 
 require (
@@ -72,6 +72,7 @@ require (
 	github.com/zeebo/xxh3 v1.1.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/collector/featuregate v1.67.0 // indirect
+	go.opentelemetry.io/collector/internal/testutil v0.161.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.71.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.71.0 // indirect
 	go.opentelemetry.io/contrib/propagators/jaeger v1.46.0 // indirect

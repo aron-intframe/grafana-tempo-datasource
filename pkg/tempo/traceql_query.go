@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"regexp"
 	"strconv"
+	"time"
 
 	//nolint:all
 	"github.com/golang/protobuf/jsonpb"
@@ -122,7 +123,7 @@ func (ds *DataSource) runTraceQlQueryMetrics(ctx context.Context, pCtx backend.P
 			return res, err
 		}
 
-		frames := traceql.TransformMetricsResponse(*tempoQuery.Query, queryResponse)
+		frames := traceql.TransformMetricsResponse(*tempoQuery.Query, queryResponse, parseStepDuration(tempoQuery.Step))
 		result.Frames = frames
 	}
 
@@ -221,4 +222,19 @@ func isInstantQuery(metricQueryType *dataquery.MetricsQueryType) bool {
 func isMetricsQuery(query string) bool {
 	match, _ := regexp.MatchString("\\|\\s*(rate|count_over_time|avg_over_time|sum_over_time|max_over_time|min_over_time|quantile_over_time|histogram_over_time|compare)\\s*\\(", query)
 	return match
+}
+
+// parseStepDuration parses the query's requested step (e.g. "15s", "1m") into a
+// time.Duration. It returns 0 (no interval) if step is nil or cannot be parsed,
+// matching the previous graceful-degradation behavior for older Tempo servers
+// that didn't/don't report a step on the response.
+func parseStepDuration(step *string) time.Duration {
+	if step == nil || *step == "" {
+		return 0
+	}
+	d, err := time.ParseDuration(*step)
+	if err != nil {
+		return 0
+	}
+	return d
 }
