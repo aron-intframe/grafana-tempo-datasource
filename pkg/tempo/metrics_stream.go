@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"time"
 
 	"github.com/grafana/grafana-tempo-datasource/pkg/tempo/traceql"
 
@@ -97,10 +96,10 @@ func (ds *DataSource) runMetricsStream(ctx context.Context, req *backend.RunStre
 		return err
 	}
 
-	return ds.processMetricsStream(ctx, qrr.Query, time.Duration(qrr.Step), stream, sender)
+	return ds.processMetricsStream(ctx, qrr.Query, stream, sender)
 }
 
-func (ds *DataSource) processMetricsStream(ctx context.Context, query string, step time.Duration, stream tempopb.StreamingQuerier_MetricsQueryRangeClient, sender StreamSender) error {
+func (ds *DataSource) processMetricsStream(ctx context.Context, query string, stream tempopb.StreamingQuerier_MetricsQueryRangeClient, sender StreamSender) error {
 	ctx, span := tracing.DefaultTracer().Start(ctx, "datasource.tempo.processStream")
 	defer span.End()
 	messageCount := 0
@@ -127,7 +126,7 @@ func (ds *DataSource) processMetricsStream(ctx context.Context, query string, st
 			return err
 		}
 
-		transformed := traceql.TransformMetricsResponse(query, *msg, step)
+		transformed := traceql.TransformMetricsResponse(query, *msg)
 		lastResult = transformed
 		lastMetrics = msg.Metrics
 

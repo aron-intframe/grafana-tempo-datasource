@@ -92,7 +92,7 @@ func TestProcessMetricsStream_DoneIncludesLastResult(t *testing.T) {
 	}
 	sender := &mockSender{}
 
-	err := ds.processMetricsStream(context.Background(), "{} | rate()", 0, stream, sender)
+	err := ds.processMetricsStream(context.Background(), "{} | rate()", stream, sender)
 	if err != nil {
 		t.Fatalf("Expected no error, got %s", err)
 	}

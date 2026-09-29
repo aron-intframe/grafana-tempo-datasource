@@ -12,7 +12,7 @@ import (
 
 func TestTransformMetricsResponse_EmptyResponse(t *testing.T) {
 	resp := tempopb.QueryRangeResponse{}
-	frames := TransformMetricsResponse("", resp, 0)
+	frames := TransformMetricsResponse("", resp)
 	assert.Empty(t, frames)
 }
 
@@ -29,7 +29,7 @@ func TestTransformMetricsResponse_SingleSeriesSingleLabel(t *testing.T) {
 			},
 		},
 	}
-	frames := TransformMetricsResponse("", resp, 0)
+	frames := TransformMetricsResponse("", resp)
 	assert.Len(t, frames, 1)
 	assert.Equal(t, "value1", frames[0].RefID)
 	assert.Equal(t, "value1", frames[0].Name)
@@ -42,9 +42,8 @@ func TestTransformMetricsResponse_SingleSeriesSingleLabel(t *testing.T) {
 }
 
 func TestTransformMetricsResponse_SetsIntervalFromStep(t *testing.T) {
-	// Tempo's tempopb.QueryRangeResponse doesn't carry the step used for the
-	// query, so the caller (which knows the requested step) supplies it.
 	resp := tempopb.QueryRangeResponse{
+		Step: 15_000_000_000, // 15s
 		Series: []*tempopb.TimeSeries{
 			{
 				Labels: []v1.KeyValue{
@@ -56,7 +55,7 @@ func TestTransformMetricsResponse_SetsIntervalFromStep(t *testing.T) {
 			},
 		},
 	}
-	frames := TransformMetricsResponse("", resp, 15*time.Second)
+	frames := TransformMetricsResponse("", resp)
 	assert.Len(t, frames, 1)
 	timeField := frames[0].Fields[0]
 	if assert.NotNil(t, timeField.Config) {
@@ -65,7 +64,7 @@ func TestTransformMetricsResponse_SetsIntervalFromStep(t *testing.T) {
 }
 
 func TestTransformMetricsResponse_NoIntervalWhenStepMissing(t *testing.T) {
-	// step is unknown/unset (e.g. caller couldn't determine it)
+	// step is missing, e.g. old Tempo version
 	resp := tempopb.QueryRangeResponse{
 		Series: []*tempopb.TimeSeries{
 			{
@@ -78,7 +77,7 @@ func TestTransformMetricsResponse_NoIntervalWhenStepMissing(t *testing.T) {
 			},
 		},
 	}
-	frames := TransformMetricsResponse("", resp, 0)
+	frames := TransformMetricsResponse("", resp)
 	assert.Len(t, frames, 1)
 	assert.Nil(t, frames[0].Fields[0].Config)
 }
@@ -99,7 +98,7 @@ func TestTransformMetricsResponse_SingleSeriesMultipleLabels(t *testing.T) {
 			},
 		},
 	}
-	frames := TransformMetricsResponse("", resp, 0)
+	frames := TransformMetricsResponse("", resp)
 	assert.Len(t, frames, 1)
 	assert.Equal(t, "{label1=\"value1\", label2=123, label3=123.456, label4=true}", frames[0].RefID)
 	assert.Equal(t, "{label1=\"value1\", label2=123, label3=123.456, label4=true}", frames[0].Name)
@@ -132,7 +131,7 @@ func TestTransformMetricsResponse_MultipleSeries(t *testing.T) {
 			},
 		},
 	}
-	frames := TransformMetricsResponse("", resp, 0)
+	frames := TransformMetricsResponse("", resp)
 	assert.Len(t, frames, 2)
 	assert.Equal(t, "value1", frames[0].RefID)
 	assert.Equal(t, "value1", frames[0].Name)

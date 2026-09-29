@@ -13,14 +13,7 @@ import (
 	v1 "github.com/grafana/tempo/pkg/tempopb/common/v1"
 )
 
-// TransformMetricsResponse converts a Tempo metrics query_range response into data frames.
-//
-// step is the query's step size (as requested from Tempo) and is used to set the
-// time field's Interval config so the frontend can render the series correctly.
-// Tempo release branches (e.g. v2.10.x) do not echo the step back on
-// tempopb.QueryRangeResponse, so it must be supplied by the caller from the
-// original request rather than read off the response.
-func TransformMetricsResponse(query string, resp tempopb.QueryRangeResponse, step time.Duration) []*data.Frame {
+func TransformMetricsResponse(query string, resp tempopb.QueryRangeResponse) []*data.Frame {
 	// prealloc frames
 	frames := make([]*data.Frame, len(resp.Series)) //nolint:prealloc
 	var exemplarFrames []*data.Frame
@@ -34,9 +27,9 @@ func TransformMetricsResponse(query string, resp tempopb.QueryRangeResponse, ste
 		}
 
 		timeField := data.NewField("time", nil, []time.Time{})
-		if step > 0 {
+		if resp.Step > 0 {
 			timeField.Config = &data.FieldConfig{
-				Interval: float64(step.Milliseconds()),
+				Interval: float64(time.Duration(resp.Step).Milliseconds()),
 			}
 		}
 

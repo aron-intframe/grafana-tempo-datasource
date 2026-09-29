@@ -2,7 +2,7 @@
 
 ## 13.2.3
 
-- Fix security vulnerabilities (CVE-2026-28377, CVE-2026-21728, CVE-2026-54285, CVE-2026-84445)
+- Fix security vulnerabilities (CVE-2026-54285, CVE-2026-84445)
 
 ## 13.2.2
 
